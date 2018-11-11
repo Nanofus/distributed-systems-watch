@@ -1,0 +1,21 @@
+INITIALIZER:
+    from Tkinter import *
+    from DWatchGUI import DWatchGUI
+    
+    root = Tk()
+    root.title("A Title")
+    g = DWatchGUI(root, eventhandler)
+    
+    eventhandler.start()
+    
+    root.mainloop()
+
+STATECHART:
+    A [DS]
+    B
+
+TRANSITION:
+    S: A
+    N: B
+    E: ev
+    O: print "Hello world"
