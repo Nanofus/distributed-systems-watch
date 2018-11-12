@@ -48,13 +48,15 @@ TRANSITION:
     N: ChronoDisplay
     T: 1  # Every 1 second
     O: print("Chrono running")
+       g.increaseTimeByOne()
+       g.refreshChronoDisplay()
     
 # ChronoDisplay to TimeDisplay
 TRANSITION:
     S: ChronoDisplay
     N: TimeDisplay
     E: changeMode
-    O. print("Returning to TimeDisplay")
+    O: print("Returning to TimeDisplay")
        g.refreshTimeDisplay()
 
 # BACKLIGHTING
