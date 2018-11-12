@@ -13,13 +13,18 @@ INITIALIZER:
 STATECHART:
     Start [DS]
     TimeDisplay
+    ChronoDisplay
 
+# Start to TimeDisplay
 TRANSITION:
     S: Start
     N: TimeDisplay
     T: 0 [OTT]
     O: [DUMP("start printing")]
 
+# TIME DISPLAY
+
+# TimeDisplay 1 second loop
 TRANSITION:
     S: TimeDisplay
     N: TimeDisplay
@@ -27,4 +32,72 @@ TRANSITION:
     O: g.increaseTimeByOne()
        g.refreshTimeDisplay()
     
+# TimeDisplay to ChronoDisplay
 TRANSITION:
+    S: TimeDisplay
+    N: ChronoDisplay
+    E: changeMode
+    O: g.refreshChronoDisplay()
+       print("Going to ChronoDisplay")
+
+# CHRONO DISPLAY
+
+# ChronoDisplay to TimeDisplay
+TRANSITION:
+    S: ChronoDisplay
+    N: TimeDisplay
+    E: resetChrono
+    O. print("Returning to TimeDisplay")
+       g.refreshTimeDisplay()
+
+# TimeDisplay 1 second loop
+TRANSITION:
+    S: ChronoDisplay
+    N: ChronoDisplay
+    T: 1  # Every 1 second
+    O: print("Chrono running")
+
+# BACKLIGHTING
+
+# TimeDisplay turn on light
+TRANSITION:
+    S: TimeDisplay
+    N: TimeDisplay
+    E: lightOn
+    O: g.setIndiglo()
+    
+# TimeDisplay light button unpressed
+TRANSITION:
+    S: TimeDisplay
+    N: TimeDisplay
+    E: lightOff
+    O: g.wait()
+
+# TimeDisplay turn off light
+TRANSITION:
+    S: TimeDisplay
+    N: TimeDisplay
+    E: lightOff2
+    O: g.unsetIndiglo()
+    
+# ChronoDisplay turn on light
+TRANSITION:
+    S: ChronoDisplay
+    N: ChronoDisplay
+    E: lightOn
+    O: g.setIndiglo()
+    
+# ChronoDisplay light button unpressed
+TRANSITION:
+    S: ChronoDisplay
+    N: ChronoDisplay
+    E: lightOff
+    O: g.wait()
+
+# ChronoDisplay turn off light
+TRANSITION:
+    S: ChronoDisplay
+    N: ChronoDisplay
+    E: lightOff2
+    O: g.unsetIndiglo()
+    
