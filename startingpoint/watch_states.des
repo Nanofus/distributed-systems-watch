@@ -11,17 +11,20 @@ INITIALIZER:
     root.mainloop()
 
 STATECHART:
-    A [DS]
-    B
+    Start [DS]
+    TimeDisplay
 
 TRANSITION:
-    S: A
-    N: B
-    T: 1 [OTT]
+    S: Start
+    N: TimeDisplay
+    T: 0 [OTT]
     O: [DUMP("start printing")]
 
 TRANSITION:
-    S: B
-    N: B
-    T: 1  # by default, it is [RTT]
+    S: TimeDisplay
+    N: TimeDisplay
+    T: 1  # Every 1 second
     O: g.increaseTimeByOne()
+       g.refreshTimeDisplay()
+    
+TRANSITION:
