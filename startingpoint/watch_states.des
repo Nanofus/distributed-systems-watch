@@ -19,6 +19,7 @@ STATECHART:
                 TimeUpdater [DS]
             ChronoDisplay
                 TimeUpdater [DS]
+            EditTime
         LightHandler [CS] [DS]
             LightUpdater [DS]
 
@@ -83,3 +84,35 @@ TRANSITION:
     E: lightOff
     O: g.unsetIndiglo()
        print("Turning off light")
+
+
+# TIME EDITING MODE
+
+# From TimeDisplay to EditTime
+TRANSITION:
+    S: Root.Display.TimeDisplay
+    N: Root.Display.EditTime
+    E: editTime
+    O: g.startSelection()
+       print("Going to EditTime")
+
+TRANSITION:
+    S: Root.Display.TimeDisplay
+    N: Root.Display.EditTime
+    E: editTime
+    O: g.startSelection()
+       print("Going to EditTime")
+
+
+# increase the first digit by one
+TRANSITION:
+    S: Root.Display.EditTime
+    N: Root.Display.EditTime
+    E: increase
+    O: g.increaseSelection()
+       print("Incresing digit") 
+
+
+
+
+
