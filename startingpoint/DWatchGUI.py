@@ -23,39 +23,32 @@ class DWatchGUI:
 
   def topRightPressed(self):
     self.eventhandler.event("lightOn")
-    print "topRightPressed"
 
   def topRightReleased(self):
     self.eventhandler.event("lightOff")
-    print "topRightReleased"
   
   def topLeftPressed(self):
     self.eventhandler.event("changeMode")
-    print "topLeftPressed"
   
   def topLeftReleased(self):
-    print "topLeftReleased"
+    pass
     
   def bottomRightPressed(self):
     self.eventhandler.event("initChrono")
     self.eventhandler.event("editTime")
     self.eventhandler.event("finishEdit")
-    print "bottomRightPressed"
 
   def bottomRightReleased(self):
     self.eventhandler.event("released")
-    print "bottomRightReleased"
   
   def bottomLeftPressed(self):
     self.eventhandler.event("resetChrono")
     self.eventhandler.event("increase")
-    self.eventhandler.event("setAlarm")  
-    print "bottomLeftPressed"
+    self.eventhandler.event("setAlarm")
 
   def bottomLeftReleased(self):
     self.eventhandler.event("stopInc")
     self.eventhandler.event("onoff")
-    print "bottomLeftReleased"
 
   def alarmStart(self):
     self.eventhandler.event("alarming")
