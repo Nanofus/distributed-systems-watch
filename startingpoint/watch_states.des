@@ -17,5 +17,11 @@ STATECHART:
 TRANSITION:
     S: A
     N: B
-    E: ev
-    O: print "Hello world"
+    T: 1 [OTT]
+    O: [DUMP("start printing")]
+
+TRANSITION:
+    S: B
+    N: B
+    T: 1  # by default, it is [RTT]
+    O: g.increaseTimeByOne()
