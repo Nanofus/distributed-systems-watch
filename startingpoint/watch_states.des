@@ -42,20 +42,20 @@ TRANSITION:
 
 # CHRONO DISPLAY
 
-# ChronoDisplay to TimeDisplay
-TRANSITION:
-    S: ChronoDisplay
-    N: TimeDisplay
-    E: resetChrono
-    O. print("Returning to TimeDisplay")
-       g.refreshTimeDisplay()
-
-# TimeDisplay 1 second loop
+# ChronoDisplay 1 second loop
 TRANSITION:
     S: ChronoDisplay
     N: ChronoDisplay
     T: 1  # Every 1 second
     O: print("Chrono running")
+    
+# ChronoDisplay to TimeDisplay
+TRANSITION:
+    S: ChronoDisplay
+    N: TimeDisplay
+    E: changeMode
+    O. print("Returning to TimeDisplay")
+       g.refreshTimeDisplay()
 
 # BACKLIGHTING
 
@@ -100,4 +100,3 @@ TRANSITION:
     N: ChronoDisplay
     E: lightOff2
     O: g.unsetIndiglo()
-    
