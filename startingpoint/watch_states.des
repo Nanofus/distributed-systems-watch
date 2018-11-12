@@ -1,6 +1,7 @@
 INITIALIZER:
     from Tkinter import *
     from DWatchGUI import DWatchGUI
+    import time
     
     root = Tk()
     root.title("A Title")
@@ -12,13 +13,19 @@ INITIALIZER:
 
 STATECHART:
     Start [DS]
-    TimeDisplay
-    ChronoDisplay
+    Root
+        Display [CS] [DS]
+            TimeDisplay [DS]
+                TimeUpdater [DS]
+            ChronoDisplay
+                TimeUpdater [DS]
+        LightHandler [CS] [DS]
+            LightUpdater [DS]
 
 # Start to TimeDisplay
 TRANSITION:
     S: Start
-    N: TimeDisplay
+    N: Root
     T: 0 [OTT]
     O: [DUMP("start printing")]
 
@@ -26,26 +33,26 @@ TRANSITION:
 
 # TimeDisplay 1 second loop
 TRANSITION:
-    S: TimeDisplay
-    N: TimeDisplay
+    S: Root.Display.TimeDisplay.TimeUpdater
+    N: Root.Display.TimeDisplay.TimeUpdater
     T: 1  # Every 1 second
     O: g.increaseTimeByOne()
        g.refreshTimeDisplay()
     
 # TimeDisplay to ChronoDisplay
 TRANSITION:
-    S: TimeDisplay
-    N: ChronoDisplay
+    S: Root.Display.TimeDisplay
+    N: Root.Display.ChronoDisplay
     E: changeMode
-    O: g.refreshChronoDisplay()
-       print("Going to ChronoDisplay")
+    O: print("Going to ChronoDisplay")
+       g.refreshChronoDisplay()       
 
 # CHRONO DISPLAY
 
 # ChronoDisplay 1 second loop
 TRANSITION:
-    S: ChronoDisplay
-    N: ChronoDisplay
+    S: Root.Display.ChronoDisplay.TimeUpdater
+    N: Root.Display.ChronoDisplay.TimeUpdater
     T: 1  # Every 1 second
     O: print("Chrono running")
        g.increaseTimeByOne()
@@ -53,52 +60,26 @@ TRANSITION:
     
 # ChronoDisplay to TimeDisplay
 TRANSITION:
-    S: ChronoDisplay
-    N: TimeDisplay
+    S: Root.Display.ChronoDisplay
+    N: Root.Display.TimeDisplay
     E: changeMode
     O: print("Returning to TimeDisplay")
        g.refreshTimeDisplay()
 
 # BACKLIGHTING
 
-# TimeDisplay turn on light
+# Turn on light
 TRANSITION:
-    S: TimeDisplay
-    N: TimeDisplay
+    S: Root.LightHandler.LightUpdater
+    N: Root.LightHandler.LightUpdater
     E: lightOn
     O: g.setIndiglo()
+       print("Turning on light")
     
-# TimeDisplay light button unpressed
+# Turn off light
 TRANSITION:
-    S: TimeDisplay
-    N: TimeDisplay
+    S: Root.LightHandler.LightUpdater
+    N: Root.LightHandler.LightUpdater
     E: lightOff
-    O: g.wait()
-
-# TimeDisplay turn off light
-TRANSITION:
-    S: TimeDisplay
-    N: TimeDisplay
-    E: lightOff2
     O: g.unsetIndiglo()
-    
-# ChronoDisplay turn on light
-TRANSITION:
-    S: ChronoDisplay
-    N: ChronoDisplay
-    E: lightOn
-    O: g.setIndiglo()
-    
-# ChronoDisplay light button unpressed
-TRANSITION:
-    S: ChronoDisplay
-    N: ChronoDisplay
-    E: lightOff
-    O: g.wait()
-
-# ChronoDisplay turn off light
-TRANSITION:
-    S: ChronoDisplay
-    N: ChronoDisplay
-    E: lightOff2
-    O: g.unsetIndiglo()
+       print("Turning off light")
