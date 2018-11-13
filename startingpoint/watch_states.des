@@ -6,20 +6,26 @@ INITIALIZER:
     root = Tk()
     root.title("A Title")
     g = DWatchGUI(root, eventhandler)
-    
+    CURRENTDISPLAY = 0 
     eventhandler.start()
     
     root.mainloop()
+
 
 STATECHART:
     Start [DS]
     Root
         Display [CS] [DS]
-            TimeDisplay [DS]
-                TimeUpdater [DS]
-            ChronoDisplay
-                TimeUpdater [DS]
-            EditTime
+            TimeDisplay [DS] #0
+            ChronoDisplay #1
+            EditTime   #2
+        TimeHandler[CS] [DS]
+            TimeUpdater [CS][DS]
+                On [DS]
+                Off
+            ChronoUpdater [CS] [DS]
+                On 
+                Off [DS]
         LightHandler [CS] [DS]
             LightUpdater [DS]
 
@@ -32,40 +38,84 @@ TRANSITION:
 
 # TIME DISPLAY
 
-# TimeDisplay 1 second loop
+#TimeDisplay loop, draws every 0.1 seconds
 TRANSITION:
-    S: Root.Display.TimeDisplay.TimeUpdater
-    N: Root.Display.TimeDisplay.TimeUpdater
+    S: Root.Display.TimeDisplay
+    N: Root.Display.TimeDisplay
+    T: 0.1
+    O: g.refreshTimeDisplay()
+
+# TimeUpdater 1 second loop
+TRANSITION:
+    S: Root.TimeHandler.TimeUpdater.On
+    N: Root.TimeHandler.TimeUpdater.On
     T: 1  # Every 1 second
     O: g.increaseTimeByOne()
-       g.refreshTimeDisplay()
+
+#Turn TimeUpdater off when going to edit MODE
+TRANSITION:
+    S: Root.TimeHandler.TimeUpdater.On
+    N: Root.TimeHandler.TimeUpdater.Off
+    C: CURRENTDISPLAY == 0
+    E: editTime
+    O: print "update off"
     
 # TimeDisplay to ChronoDisplay
 TRANSITION:
     S: Root.Display.TimeDisplay
     N: Root.Display.ChronoDisplay
     E: changeMode
-    O: print("Going to ChronoDisplay")
-       g.refreshChronoDisplay()       
+    O: CURRENTDISPLAY = 1
+       g.refreshChronoDisplay()
+      
 
 # CHRONO DISPLAY
 
-# ChronoDisplay 1 second loop
+# ChronoDisplay 0.1 second loop
 TRANSITION:
-    S: Root.Display.ChronoDisplay.TimeUpdater
-    N: Root.Display.ChronoDisplay.TimeUpdater
-    T: 1  # Every 1 second
-    O: print("Chrono running")
-       g.increaseTimeByOne()
-       g.refreshChronoDisplay()
-    
+    S: Root.Display.ChronoDisplay
+    N: Root.Display.ChronoDisplay
+    T: 0.1  # Every 1 second
+    O: g.refreshChronoDisplay()
+
+#ChronoDisplay update loop
+TRANSITION:
+    S: Root.TimeHandler.ChronoUpdater.On
+    N: Root.TimeHandler.ChronoUpdater.On
+    T: 0.01
+    O: g.increaseChronoByOne()
+
+#Turn Chrono on, if in ChronoDisplay
+TRANSITION:
+    S: Root.TimeHandler.ChronoUpdater.Off
+    N: Root.TimeHandler.ChronoUpdater.On
+    E: initChrono
+    C: CURRENTDISPLAY == 1
+
+#Turn Chrono off, if in ChronoDisplay
+TRANSITION:
+    S: Root.TimeHandler.ChronoUpdater.On
+    N: Root.TimeHandler.ChronoUpdater.Off
+    E: initChrono
+    C: CURRENTDISPLAY == 1
+
+# Reset Chrono
+TRANSITION:
+    S: Root.Display.ChronoDisplay
+    N: Root.Display.ChronoDisplay
+    E: resetChrono
+    O: g.resetChrono()
+
 # ChronoDisplay to TimeDisplay
 TRANSITION:
     S: Root.Display.ChronoDisplay
     N: Root.Display.TimeDisplay
     E: changeMode
     O: print("Returning to TimeDisplay")
+       CURRENTDISPLAY = 0
        g.refreshTimeDisplay()
+      
+
 
 # BACKLIGHTING
 
@@ -93,7 +143,8 @@ TRANSITION:
     S: Root.Display.TimeDisplay
     N: Root.Display.EditTime
     E: editTime
-    O: g.startSelection()
+    O: CURRENTDISPLAY = 2
+       g.startSelection()
        print("Going to EditTime")
 
 TRANSITION:
