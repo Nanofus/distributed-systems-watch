@@ -172,6 +172,40 @@ TRANSITION:
        g.startSelection()
        print("Going to EditTime")
 
+
+#Exit editmode
+TRANSITION:
+    S: Root.Display.EditTime
+    N: Root.Display.EditTime.ExitEditTime
+    E: editTime
+    O: print("EditTime clicked")
+       CURRENTDISPLAY = 312
+
+TRANSITION:
+    S: Root.Display.EditTime.ExitEditTime
+    N: Root.Display.EditTime.EnterEditTime
+    T: 2 
+    O: CURRENTDISPLAY = 2
+
+
+TRANSITION:
+    S: Root.TimeHandler.TimeUpdater.Off
+    N: Root.TimeHandler.TimeUpdater.On
+    E: released
+    C: CURRENTDISPLAY == 2
+    
+
+TRANSITION:
+    S: Root.Display.EditTime.EnterEditTime
+    N: Root.Display.TimeDisplay
+    E: released
+    O: CURRENTDISPLAY = 0
+       g.stopSelection()
+
+    
+    
+
+
 # increase the first digit by one
 TRANSITION:
     S: Root.Display.EditTime
@@ -179,5 +213,6 @@ TRANSITION:
     E: increase
     O: g.increaseSelection()
        print("Incresing digit") 
+
 
 
