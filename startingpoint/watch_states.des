@@ -11,19 +11,25 @@ INITIALIZER:
     
     root.mainloop()
 
-
 STATECHART:
     Start [DS]
     Root
         Display [CS] [DS]
-            TimeDisplay [DS] #0
-            ChronoDisplay #1
-            EditTime   #2
+            TimeDisplay [DS]          #0
+            ChronoDisplay             #1
+            EditTime                  #2
                 PressEditTime
                 EnterEditTime
                 ExitEditTime
-        TimeHandler[CS] [DS]
-            TimeUpdater [CS][DS]
+            EditAlarm                 #3
+                PressEditAlarm
+                EnterEditAlarm
+                EditAlarm
+                    Editing [CS] [DS]
+                    Timeout [CS] [DS]
+                ExitEditAlarm
+        TimeHandler [CS] [DS]
+            TimeUpdater [CS] [DS]
                 On [DS]
                 Off
             ChronoUpdater [CS] [DS]
@@ -39,6 +45,7 @@ TRANSITION:
     N: Root
     T: 0 [OTT]
     O: [DUMP("start printing")]
+
 
 # TIME DISPLAY
 
@@ -144,7 +151,53 @@ TRANSITION:
     T: 2
     O: g.unsetIndiglo()
        print("Turning off light")
-       
+
+
+# ALARM MODE
+
+# From TimeDisplay to EditAlarm
+TRANSITION:
+    S: Root.Display.TimeDisplay
+    N: Root.Display.EditAlarm.PressEditAlarm
+    E: setAlarm
+    O: print("EditAlarm clicked")
+
+TRANSITION:
+    S: Root.Display.EditAlarm.PressEditAlarm
+    N: Root.Display.EditAlarm.EditAlarm
+    T: 1.5
+    O: print("Entered EditAlarm")
+       g.startSelection()
+       g.refreshAlarmDisplay()
+
+TRANSITION:
+    S: Root.Display.EditTime.PressEditAlarm
+    N: Root.Display.TimeDisplay
+    E: stopInc
+    O: print("EditAlarm unpressed before transition")
+
+TRANSITION:
+    S: Root.Display.EditAlarm.EditAlarm.Editing
+    N: Root.Display.EditAlarm.EditAlarm
+    E: increase
+    O: g.increaseSelection()
+       g.refreshAlarmDisplay()
+       print("Incresing digit") 
+
+TRANSITION:
+    S: Root.Display.EditAlarm.EditAlarm.Editing
+    N: Root.Display.EditAlarm.EditAlarm
+    E: finishEdit
+    O: g.selectNext()
+       g.refreshAlarmDisplay()
+       print("Selecting next") 
+
+TRANSITION:
+    S: Root.Display.EditAlarm.EditAlarm.Timeout
+    N: Root.Display.TimeDisplay
+    T: 5
+    O: print("Alarm editing timeout") 
+       g.refreshTimeDisplay()
 
 
 # TIME EDITING MODE
