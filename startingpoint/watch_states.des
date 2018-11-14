@@ -209,7 +209,7 @@ TRANSITION:
     N: Root.Display.EditTime.PressEditTime
     E: editTime
     O: print("EditTime clicked")
-       CURRENTDISPLAY = 313
+       CURRENTDISPLAY = -1
 
 TRANSITION:
     S: Root.Display.EditTime.PressEditTime
@@ -217,6 +217,11 @@ TRANSITION:
     T: 1.5 
     O: CURRENTDISPLAY = 0
 
+TRANSITION:
+    S: Root.TimeHandler.TimeUpdater.Off
+    N: Root.TimeHandler.TimeUpdater.On
+    E: released
+    C: CURRENTDISPLAY == 2
 
 TRANSITION:
     S: Root.Display.TimeDisplay
@@ -226,20 +231,13 @@ TRANSITION:
        g.startSelection()
        print("Going to EditTime")
 
-
 #Exit editmode
 TRANSITION:
     S: Root.Display.EditTime.EditTimeOpen
     N: Root.Display.EditTime.ExitEditTime
     E: editTime
     O: print("EditTime2 clicked")
-       CURRENTDISPLAY = 312
-
-TRANSITION:
-    S: Root.TimeHandler.TimeUpdater.Off
-    N: Root.TimeHandler.TimeUpdater.On
-    E: released
-    C: CURRENTDISPLAY == 2
+       CURRENTDISPLAY = -1
 
 TRANSITION:
     S: Root.Display.EditTime.ExitEditTime
@@ -247,22 +245,13 @@ TRANSITION:
     T: 2 
     O: print("Bottom right clicked")
        CURRENTDISPLAY = 2
-       g.selectNext()
-
-
 
 TRANSITION:
     S: Root.Display.EditTime.ExitEditTime
     N: Root.Display.EditTime.EditTimeOpen
     E: released
-    O: CURRENTDISPLAY = 2
-       g.selectNext()
-       
-
-
-
-    
-
+    O: g.selectNext()
+   
 TRANSITION:
     S: Root.Display.EditTime.EditTimeOpen
     N: Root.Display.TimeDisplay
@@ -289,12 +278,11 @@ TRANSITION:
     S: Root.Display.EditTime.EditTimeOpen.Timeout
     N: Root.Display.EditTime.EditTimeOpen
     T: 5
-    O: print("Time editing timeout") 
+    O: print("Time editing timeout")
+       CURRENTDISPLAY = 2  
        [EVENT("released")]
 
 
-    
-    
 # increase the first digit by one
 TRANSITION:
     S: Root.Display.EditTime.EditTimeOpen
