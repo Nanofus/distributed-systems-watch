@@ -7,7 +7,6 @@ INITIALIZER:
     root.title("A Title")
     g = DWatchGUI(root, eventhandler)
     CURRENTDISPLAY = 0 
-    STORETIME = 0
     eventhandler.start()
     
     root.mainloop()
@@ -20,6 +19,9 @@ STATECHART:
             TimeDisplay [DS] #0
             ChronoDisplay #1
             EditTime   #2
+                PressEditTime
+                EnterEditTime
+                ExitEditTime
         TimeHandler[CS] [DS]
             TimeUpdater [CS][DS]
                 On [DS]
@@ -150,16 +152,23 @@ TRANSITION:
 # From TimeDisplay to EditTime
 TRANSITION:
     S: Root.Display.TimeDisplay
-    N: Root.Display.TimeDisplay
-    E: EditTime
+    N: Root.Display.EditTime.PressEditTime
+    E: editTime
     O: print("EditTime clicked")
+       CURRENTDISPLAY = 313
+
+TRANSITION:
+    S: Root.Display.EditTime.PressEditTime
+    N: Root.Display.TimeDisplay
+    T: 1.5 
+    O: CURRENTDISPLAY = 0
+
 
 TRANSITION:
     S: Root.Display.TimeDisplay
-    N: Root.Display.EditTime
+    N: Root.Display.EditTime.EnterEditTime
     E: released
     O: CURRENTDISPLAY = 2
-       print(STORETIME) 
        g.startSelection()
        print("Going to EditTime")
 
@@ -170,8 +179,5 @@ TRANSITION:
     E: increase
     O: g.increaseSelection()
        print("Incresing digit") 
-
-
-
 
 
