@@ -25,7 +25,7 @@ STATECHART:
                 ExitEditTime    
             EditAlarm                 #3
                 PressEditAlarm
-                EditAlarm
+                EditAlarmOpen
                     Editing [CS] [DS]
                     Timeout [CS] [DS]
                 ExitEditAlarm
@@ -69,8 +69,8 @@ TRANSITION:
 TRANSITION:
     S: Root.TimeHandler.TimeUpdater.On
     N: Root.TimeHandler.TimeUpdater.Off
-    C: CURRENTDISPLAY == 0
-    E: released
+    #C: CURRENTDISPLAY == 0
+    E: timeoff
     O: print "update off"
     
 # TimeDisplay to ChronoDisplay
@@ -176,7 +176,7 @@ TRANSITION:
 
 TRANSITION:
     S: Root.Display.EditAlarm.PressEditAlarm
-    N: Root.Display.EditAlarm.EditAlarm
+    N: Root.Display.EditAlarm.EditAlarmOpen.Editing
     T: 1.5
     O: print("Entered EditAlarm")
        g.refreshAlarmDisplay()
@@ -185,27 +185,53 @@ TRANSITION:
 
 
 TRANSITION:
-    S: Root.Display.EditAlarm.EditAlarm.Editing
-    N: Root.Display.EditAlarm.EditAlarm
+    S: Root.Display.EditAlarm.EditAlarmOpen.Editing
+    N: Root.Display.EditAlarm.EditAlarmOpen
     E: increase
     O: g.increaseSelection()
        print("Incresing digit") 
 
 TRANSITION:
-    S: Root.Display.EditAlarm.EditAlarm.Editing
-    N: Root.Display.EditAlarm.EditAlarm
+    S: Root.Display.EditAlarm.EditAlarmOpen.Editing
+    N: Root.Display.EditAlarm.ExitEditAlarm
     E: finishEdit
-    O: g.selectNext()
-       print("Selecting next") 
+    O: CURRENTDISPLAY = -1
+       print("Selecting next digit") 
 
 TRANSITION:
-    S: Root.Display.EditAlarm.EditAlarm.Timeout
+    S: Root.Display.EditAlarm.EditAlarmOpen
     N: Root.Display.TimeDisplay
-    T: 5
-    O: print("Alarm editing timeout") 
+    E: released
+    O: CURRENTDISPLAY = 0
        g.stopSelection()
-       CURRENTDISPLAY = 0
+   
 
+TRANSITION:
+    S: Root.Display.EditAlarm.EditAlarmOpen.Timeout
+    N: Root.Display.EditAlarm.EditAlarmOpen
+    T: 5
+    O: print("Alarm editing timeout")
+       CURRENTDISPLAY = 3 
+       [EVENT("released")]
+
+
+
+TRANSITION:
+    S: Root.Display.EditAlarm.ExitEditAlarm
+    N: Root.Display.EditAlarm.EditAlarmOpen
+    T: 2
+    O: CURRENTDISPLAY = 3
+    
+
+
+TRANSITION:
+    S: Root.Display.EditAlarm.ExitEditAlarm
+    N: Root.Display.EditAlarm.EditAlarmOpen
+    E: released
+    O: print("released")
+       g.selectNext() 
+       CURRENTDISPLAY = 3
+       
 
 # TIME EDITING MODE
 
@@ -233,7 +259,8 @@ TRANSITION:
     S: Root.Display.TimeDisplay
     N: Root.Display.EditTime.EditTimeOpen
     E: released
-    O: CURRENTDISPLAY = 2
+    O: [EVENT("timeoff")]
+       CURRENTDISPLAY = 2
        g.startSelection()
        print("Going to EditTime")
 
@@ -265,7 +292,7 @@ TRANSITION:
     O: CURRENTDISPLAY = 0
        g.stopSelection()
 
-#EditTime timeout
+
 TRANSITION:
     S: Root.Display.EditTime.EditTimeOpen.Editing
     N: Root.Display.EditTime.EditTimeOpen
@@ -273,6 +300,7 @@ TRANSITION:
     O: g.increaseSelection()
        print("Incresing digit") 
 
+#EditTime timeout
 TRANSITION:
     S: Root.Display.EditTime.EditTimeOpen.Editing
     N: Root.Display.EditTime.EditTimeOpen
