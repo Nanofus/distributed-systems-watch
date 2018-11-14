@@ -19,11 +19,12 @@ STATECHART:
             ChronoDisplay             #1
             EditTime                  #2
                 PressEditTime
-                EnterEditTime
-                ExitEditTime
+                EditTimeOpen
+                    Editing [CS] [DS]
+                    Timeout [CS] [DS]
+                ExitEditTime    
             EditAlarm                 #3
                 PressEditAlarm
-                EnterEditAlarm
                 EditAlarm
                     Editing [CS] [DS]
                     Timeout [CS] [DS]
@@ -219,7 +220,7 @@ TRANSITION:
 
 TRANSITION:
     S: Root.Display.TimeDisplay
-    N: Root.Display.EditTime.EnterEditTime
+    N: Root.Display.EditTime.EditTimeOpen
     E: released
     O: CURRENTDISPLAY = 2
        g.startSelection()
@@ -228,41 +229,76 @@ TRANSITION:
 
 #Exit editmode
 TRANSITION:
-    S: Root.Display.EditTime
+    S: Root.Display.EditTime.EditTimeOpen
     N: Root.Display.EditTime.ExitEditTime
     E: editTime
-    O: print("EditTime clicked")
+    O: print("EditTime2 clicked")
        CURRENTDISPLAY = 312
-
-TRANSITION:
-    S: Root.Display.EditTime.ExitEditTime
-    N: Root.Display.EditTime.EnterEditTime
-    T: 2 
-    O: CURRENTDISPLAY = 2
-
 
 TRANSITION:
     S: Root.TimeHandler.TimeUpdater.Off
     N: Root.TimeHandler.TimeUpdater.On
     E: released
     C: CURRENTDISPLAY == 2
+
+TRANSITION:
+    S: Root.Display.EditTime.ExitEditTime
+    N: Root.Display.EditTime.EditTimeOpen
+    T: 2 
+    O: print("Bottom right clicked")
+       CURRENTDISPLAY = 2
+       g.selectNext()
+
+
+
+TRANSITION:
+    S: Root.Display.EditTime.ExitEditTime
+    N: Root.Display.EditTime.EditTimeOpen
+    E: released
+    O: CURRENTDISPLAY = 2
+       g.selectNext()
+       
+
+
+
     
 
 TRANSITION:
-    S: Root.Display.EditTime.EnterEditTime
+    S: Root.Display.EditTime.EditTimeOpen
     N: Root.Display.TimeDisplay
     E: released
     O: CURRENTDISPLAY = 0
        g.stopSelection()
 
-    
-    
+#EditTime timeout
+TRANSITION:
+    S: Root.Display.EditTime.EditTimeOpen.Editing
+    N: Root.Display.EditTime.EditTimeOpen
+    E: increase
+    O: g.increaseSelection()
+       print("Incresing digit") 
+
+TRANSITION:
+    S: Root.Display.EditTime.EditTimeOpen.Editing
+    N: Root.Display.EditTime.EditTimeOpen
+    E: finishEdit
+    O: g.selectNext()
+       print("Selecting next digit") 
+
+TRANSITION:
+    S: Root.Display.EditTime.EditTimeOpen.Timeout
+    N: Root.Display.EditTime.EditTimeOpen
+    T: 5
+    O: print("Time editing timeout") 
+       [EVENT("released")]
 
 
+    
+    
 # increase the first digit by one
 TRANSITION:
-    S: Root.Display.EditTime
-    N: Root.Display.EditTime
+    S: Root.Display.EditTime.EditTimeOpen
+    N: Root.Display.EditTime.EditTimeOpen
     E: increase
     O: g.increaseSelection()
        print("Incresing digit") 
