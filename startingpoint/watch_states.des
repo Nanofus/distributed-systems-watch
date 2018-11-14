@@ -28,6 +28,7 @@ STATECHART:
                 Off [DS]
         LightHandler [CS] [DS]
             LightUpdater [DS]
+            LightTurnOff
 
 # Start to TimeDisplay
 TRANSITION:
@@ -130,8 +131,14 @@ TRANSITION:
 # Turn off light
 TRANSITION:
     S: Root.LightHandler.LightUpdater
-    N: Root.LightHandler.LightUpdater
+    N: Root.LightHandler.LightTurnOff
     E: lightOff
+
+# Wait 2 seconds
+TRANSITION:
+    S: Root.LightHandler.LightTurnOff
+    N: Root.LightHandler.LightUpdater
+    T: 2
     O: g.unsetIndiglo()
        print("Turning off light")
 
