@@ -56,6 +56,7 @@ TRANSITION:
     N: Root.Display.TimeDisplay
     T: 0.1
     O: g.refreshTimeDisplay()
+       g.refreshDateDisplay()
 
 # TimeUpdater 1 second loop
 TRANSITION:
@@ -78,7 +79,6 @@ TRANSITION:
     N: Root.Display.ChronoDisplay
     E: changeMode
     O: CURRENTDISPLAY = 1
-       g.refreshChronoDisplay()
       
 
 # CHRONO DISPLAY
@@ -89,6 +89,7 @@ TRANSITION:
     N: Root.Display.ChronoDisplay
     T: 0.1  # Every 1 second
     O: g.refreshChronoDisplay()
+       g.refreshDateDisplay()
 
 #ChronoDisplay update loop
 TRANSITION:
@@ -125,7 +126,7 @@ TRANSITION:
     E: changeMode
     O: print("Returning to TimeDisplay")
        CURRENTDISPLAY = 0
-       g.refreshTimeDisplay()
+       #g.refreshTimeDisplay()
       
 
 
@@ -162,27 +163,32 @@ TRANSITION:
     N: Root.Display.EditAlarm.PressEditAlarm
     E: setAlarm
     O: print("EditAlarm clicked")
+       CURRENTDISPLAY = -1
+
+TRANSITION:
+    S: Root.Display.EditAlarm.PressEditAlarm
+    N: Root.Display.TimeDisplay
+    E: onoff
+    O: print("EditAlarm unpressed before transition")
+       g.setAlarm()
+       CURRENTDISPLAY = 0
+
 
 TRANSITION:
     S: Root.Display.EditAlarm.PressEditAlarm
     N: Root.Display.EditAlarm.EditAlarm
     T: 1.5
     O: print("Entered EditAlarm")
-       g.startSelection()
        g.refreshAlarmDisplay()
+       CURRENTDISPLAY = 3
+       g.startSelection()
 
-TRANSITION:
-    S: Root.Display.EditTime.PressEditAlarm
-    N: Root.Display.TimeDisplay
-    E: stopInc
-    O: print("EditAlarm unpressed before transition")
 
 TRANSITION:
     S: Root.Display.EditAlarm.EditAlarm.Editing
     N: Root.Display.EditAlarm.EditAlarm
     E: increase
     O: g.increaseSelection()
-       g.refreshAlarmDisplay()
        print("Incresing digit") 
 
 TRANSITION:
@@ -190,7 +196,6 @@ TRANSITION:
     N: Root.Display.EditAlarm.EditAlarm
     E: finishEdit
     O: g.selectNext()
-       g.refreshAlarmDisplay()
        print("Selecting next") 
 
 TRANSITION:
@@ -198,7 +203,8 @@ TRANSITION:
     N: Root.Display.TimeDisplay
     T: 5
     O: print("Alarm editing timeout") 
-       g.refreshTimeDisplay()
+       g.stopSelection()
+       CURRENTDISPLAY = 0
 
 
 # TIME EDITING MODE
