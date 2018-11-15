@@ -39,6 +39,13 @@ STATECHART:
         LightHandler [CS] [DS]
             LightUpdater [DS]
             LightTurnOff
+            Alarming
+                AlarmStates [CS] [DS]
+                    TurnedOn [DS]
+                    TurnedOff
+                AlarmTimeout [CS] [DS]
+        AlarmHandler [CS] [DS]
+            AlarmListener [DS]
 
 # Start to TimeDisplay
 TRANSITION:
@@ -153,6 +160,51 @@ TRANSITION:
     T: 2
     O: g.unsetIndiglo()
        print("Turning off light")
+
+TRANSITION:
+    S: Root.LightHandler.LightUpdater
+    N: Root.LightHandler.Alarming
+    E: alarming
+    
+
+# ALARMING
+
+TRANSITION:
+    S: Root.LightHandler.Alarming.AlarmStates.TurnedOn
+    N: Root.LightHandler.Alarming.AlarmStates.TurnedOff
+    T: 0.5
+    O: g.unsetIndiglo()
+
+TRANSITION:
+    S: Root.LightHandler.Alarming.AlarmStates.TurnedOff
+    N: Root.LightHandler.Alarming.AlarmStates.TurnedOn
+    T: 0.5
+    O: g.setIndiglo()
+
+TRANSITION:
+    S: Root.LightHandler.Alarming.AlarmTimeout
+    N: Root.LightHandler.LightUpdater
+    T: 5
+
+TRANSITION:
+    S: Root.LightHandler.Alarming.AlarmTimeout
+    N: Root.LightHandler.LightUpdater
+    E: lightOff
+    
+TRANSITION:
+    S: Root.LightHandler.Alarming.AlarmTimeout
+    N: Root.LightHandler.LightUpdater
+    E: changeMode
+    
+TRANSITION:
+    S: Root.LightHandler.Alarming.AlarmTimeout
+    N: Root.LightHandler.LightUpdater
+    E: resetChrono
+
+TRANSITION:
+    S: Root.LightHandler.Alarming.AlarmTimeout
+    N: Root.LightHandler.LightUpdater
+    E: released
 
 
 # ALARM MODE
@@ -326,4 +378,10 @@ TRANSITION:
        print("Incresing digit") 
 
 
+# AlarmHandler
 
+TRANSITION:
+    S: Root.AlarmHandler.AlarmListener
+    N: Root.AlarmHandler.AlarmListener
+    T: 0.5
+    O: g.checkTime()
