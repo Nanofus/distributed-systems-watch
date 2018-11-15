@@ -22,12 +22,14 @@ STATECHART:
                 EditTimeOpen
                     Editing [CS] [DS]
                     Timeout [CS] [DS]
+                AutoInc
                 ExitEditTime    
             EditAlarm                 #3
                 PressEditAlarm
                 EditAlarmOpen
                     Editing [CS] [DS]
                     Timeout [CS] [DS]
+                AutoInc
                 ExitEditAlarm
         TimeHandler [CS] [DS]
             TimeUpdater [CS] [DS]
@@ -236,12 +238,33 @@ TRANSITION:
        g.startSelection()
 
 
+#TRANSITION:
+#    S: Root.Display.EditAlarm.EditAlarmOpen.Editing
+#    N: Root.Display.EditAlarm.EditAlarmOpen
+#    E: increase
+#    O: g.increaseSelection()
+#       print("Incresing digit") 
+
 TRANSITION:
     S: Root.Display.EditAlarm.EditAlarmOpen.Editing
-    N: Root.Display.EditAlarm.EditAlarmOpen
+    N: Root.Display.EditAlarm.AutoInc
     E: increase
     O: g.increaseSelection()
        print("Incresing digit") 
+
+TRANSITION:
+    S: Root.Display.EditAlarm.AutoInc
+    N: Root.Display.EditAlarm.EditAlarmOpen
+    E: stopInc
+    O: print("tila saavutettu")
+
+
+TRANSITION:
+    S: Root.Display.EditAlarm.AutoInc
+    N: Root.Display.EditAlarm.AutoInc
+    T: 0.3
+    O: g.increaseSelection()
+       print("Auto increasing alarm")
 
 TRANSITION:
     S: Root.Display.EditAlarm.EditAlarmOpen.Editing
@@ -257,7 +280,6 @@ TRANSITION:
     O: CURRENTDISPLAY = 0
        g.stopSelection()
    
-
 TRANSITION:
     S: Root.Display.EditAlarm.EditAlarmOpen.Timeout
     N: Root.Display.EditAlarm.EditAlarmOpen
@@ -266,16 +288,12 @@ TRANSITION:
        CURRENTDISPLAY = 3 
        [EVENT("released")]
 
-
-
 TRANSITION:
     S: Root.Display.EditAlarm.ExitEditAlarm
     N: Root.Display.EditAlarm.EditAlarmOpen
     T: 2
     O: CURRENTDISPLAY = 3
     
-
-
 TRANSITION:
     S: Root.Display.EditAlarm.ExitEditAlarm
     N: Root.Display.EditAlarm.EditAlarmOpen
@@ -283,7 +301,7 @@ TRANSITION:
     O: print("released")
        g.selectNext() 
        CURRENTDISPLAY = 3
-       
+
 
 # TIME EDITING MODE
 
@@ -347,10 +365,24 @@ TRANSITION:
 
 TRANSITION:
     S: Root.Display.EditTime.EditTimeOpen.Editing
-    N: Root.Display.EditTime.EditTimeOpen
+    N: Root.Display.EditTime.AutoInc
     E: increase
     O: g.increaseSelection()
        print("Incresing digit") 
+
+TRANSITION:
+    S: Root.Display.EditTime.AutoInc
+    N: Root.Display.EditTime.EditTimeOpen
+    E: stopInc
+    O: print("tila saavutettu")
+
+
+TRANSITION:
+    S: Root.Display.EditTime.AutoInc
+    N: Root.Display.EditTime.AutoInc
+    T: 0.3
+    O: g.increaseSelection()
+       print("Auto increasing time")
 
 #EditTime timeout
 TRANSITION:
@@ -367,15 +399,6 @@ TRANSITION:
     O: print("Time editing timeout")
        CURRENTDISPLAY = 2  
        [EVENT("released")]
-
-
-# increase the first digit by one
-TRANSITION:
-    S: Root.Display.EditTime.EditTimeOpen
-    N: Root.Display.EditTime.EditTimeOpen
-    E: increase
-    O: g.increaseSelection()
-       print("Incresing digit") 
 
 
 # AlarmHandler
